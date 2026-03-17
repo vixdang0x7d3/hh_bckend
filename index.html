@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>haihôm — order online</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue: #2b3ec8;
+    --blue-dark: #1e2e9e;
+    --blue-pale: #e8ebff;
+    --blue-light: #d0d5f7;
+    --cream: #f5f0e8;
+    --cream-dark: #ede7dc;
+    --text: #181830;
+    --text-muted: #6b6b99;
+    --white: #ffffff;
+  }
+
+  body { font-family: 'Space Grotesk', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  header { background: var(--cream); border-bottom: 2px solid var(--blue); padding: 0 20px; position: sticky; top: 0; z-index: 100; }
+  .header-inner { max-width: 620px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 58px; }
+  .logo { font-size: 26px; font-weight: 700; color: var(--blue); letter-spacing: -0.03em; }
+  #cart-badge { background: var(--blue); color: var(--cream); font-size: 12px; font-weight: 600; padding: 5px 14px; border-radius: 20px; display: none; letter-spacing: 0.04em; }
+
+  .hero { background: var(--blue); padding: 44px 24px 40px; text-align: center; }
+  .hero-eyebrow { display: inline-block; border: 1.5px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.7); font-size: 10px; letter-spacing: 0.22em; font-weight: 600; padding: 5px 14px; border-radius: 20px; margin-bottom: 18px; text-transform: uppercase; }
+  .hero h1 { font-size: 38px; font-weight: 700; color: var(--cream); letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 10px; }
+  .hero h1 em { font-style: normal; color: rgba(255,255,255,0.45); font-weight: 300; }
+  .hero p { color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 300; max-width: 300px; margin: 0 auto; line-height: 1.6; }
+
+  main { max-width: 620px; margin: 0 auto; padding: 28px 16px 70px; }
+
+  .section { margin-bottom: 28px; }
+  .section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--blue); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .section-label::after { content:''; flex:1; height:2px; background: var(--blue); opacity: 0.15; }
+
+  .cat-label { font-size: 13px; font-weight: 700; color: var(--blue); letter-spacing: 0.06em; margin: 18px 0 8px; padding-left: 2px; }
+
+  .drink-card { background: var(--white); border: 2px solid var(--cream-dark); border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.18s; margin-bottom: 8px; user-select: none; }
+  .drink-card:hover { border-color: var(--blue); }
+  .drink-card.selected { border-color: var(--blue); background: var(--blue-pale); }
+  .drink-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--cream-dark); display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: white; transition: all 0.18s; }
+  .drink-card.selected .drink-check { background: var(--blue); border-color: var(--blue); }
+  .drink-check svg { display: none; }
+  .drink-card.selected .drink-check svg { display: block; }
+  .drink-info { flex: 1; min-width: 0; }
+  .drink-name { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+  .drink-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .drink-price { font-size: 16px; font-weight: 700; color: var(--blue); flex-shrink: 0; }
+
+  .drink-extras { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--blue-light); gap: 12px; flex-direction: column; }
+  .drink-card.selected .drink-extras { display: flex; }
+
+  .oat-row { display: flex; align-items: center; gap: 10px; }
+  .oat-label { font-size: 12px; color: var(--text-muted); flex: 1; }
+  .toggle-btn { display: flex; border: 1.5px solid var(--cream-dark); border-radius: 6px; overflow: hidden; }
+  .toggle-opt { padding: 5px 12px; font-size: 11px; font-weight: 600; background: white; color: var(--text-muted); border: none; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: all 0.15s; }
+  .toggle-opt.active { background: var(--blue); color: white; }
+
+  .qty-row { display: flex; align-items: center; gap: 10px; }
+  .qty-label { font-size: 12px; color: var(--text-muted); flex: 1; }
+  .qty-controls { display: flex; align-items: center; gap: 10px; }
+  .qty-btn { width: 28px; height: 28px; border-radius: 6px; border: 1.5px solid var(--blue-light); background: white; color: var(--blue); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-family: 'Space Grotesk', sans-serif; }
+  .qty-btn:hover { background: var(--blue); color: white; border-color: var(--blue); }
+  .qty-num { font-weight: 700; font-size: 15px; min-width: 22px; text-align: center; }
+
+  .fields { display: flex; flex-direction: column; gap: 12px; }
+  .field label { display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  .field input, .field textarea { width: 100%; border: 2px solid var(--cream-dark); background: var(--white); color: var(--text); padding: 11px 14px; border-radius: 8px; font-family: 'Space Grotesk', sans-serif; font-size: 15px; outline: none; transition: border-color 0.18s; -webkit-appearance: none; }
+  .field input:focus, .field textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(43,62,200,0.1); }
+  .field textarea { resize: vertical; min-height: 75px; }
+  .field.error input, .field.error textarea { border-color: #e53935; }
+  .error-msg { color: #c62828; font-size: 11px; margin-top: 4px; font-weight: 500; }
+
+  .payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pay-opt { border: 2px solid var(--cream-dark); border-radius: 10px; padding: 14px 12px; cursor: pointer; transition: all 0.18s; background: white; text-align: left; font-family: 'Space Grotesk', sans-serif; }
+  .pay-opt:hover { border-color: var(--blue); }
+  .pay-opt.selected { border-color: var(--blue); background: var(--blue-pale); }
+  .pay-icon { font-size: 22px; margin-bottom: 6px; display: block; }
+  .pay-name { font-size: 14px; font-weight: 600; color: var(--text); display: block; }
+  .pay-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  .empty-note { background: var(--blue-pale); border: 1.5px dashed var(--blue-light); border-radius: 10px; padding: 16px; text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 16px; }
+  .summary-box { background: white; border: 2px solid var(--cream-dark); border-radius: 10px; padding: 16px; margin-bottom: 16px; display: none; }
+  .sum-row { display: flex; justify-content: space-between; font-size: 14px; padding: 4px 0; }
+  .sum-row .lbl { color: var(--text-muted); }
+  .sum-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; border-top: 2px solid var(--cream-dark); margin-top: 10px; padding-top: 12px; }
+  .sum-total .amt { color: var(--blue); }
+
+  .notice { background: var(--blue-pale); border-radius: 8px; padding: 12px 14px; font-size: 13px; color: var(--blue); margin-bottom: 16px; display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; font-weight: 500; }
+
+  .submit-btn { width: 100%; padding: 16px; background: var(--blue); color: var(--cream); border: none; border-radius: 10px; font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .submit-btn:hover:not(:disabled) { background: var(--blue-dark); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(43,62,200,0.3); }
+  .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* LOADING SPINNER */
+  .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* SUCCESS */
+  #success { display: none; max-width: 620px; margin: 0 auto; padding: 60px 20px; text-align: center; }
+  .success-ring { width: 80px; height: 80px; border-radius: 50%; background: var(--blue); margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--cream); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  #success h2 { font-size: 34px; font-weight: 700; letter-spacing: -0.03em; color: var(--blue); margin-bottom: 8px; }
+  #success p { color: var(--text-muted); font-size: 14px; line-height: 1.7; }
+  .order-card { background: white; border: 2px solid var(--blue-light); border-radius: 12px; padding: 20px; margin: 24px 0; text-align: left; }
+  .order-id-lbl { font-size: 10px; letter-spacing: 0.18em; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+  .order-num { font-size: 26px; font-weight: 700; color: var(--blue); margin: 4px 0 16px; }
+  .new-btn { padding: 12px 32px; border: 2px solid var(--blue); border-radius: 10px; background: transparent; color: var(--blue); font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .new-btn:hover { background: var(--blue); color: var(--cream); }
+  .footer { text-align: center; padding: 24px; font-size: 18px; font-weight: 700; color: var(--blue); letter-spacing: -0.03em; opacity: 0.25; }
+
+  /* ERROR TOAST */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #c62828; color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 999; animation: slideUp 0.3s ease; }
+  @keyframes slideUp { from { opacity:0; transform: translate(-50%, 10px); } to { opacity:1; transform: translate(-50%, 0); } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">haihôm</div>
+    <div id="cart-badge">0 món</div>
+  </div>
+</header>
+
+<div id="form-page">
+  <div class="hero">
+    <div class="hero-eyebrow">order online</div>
+    <h1>đặt hàng<br/><em>online</em></h1>
+    <p>Chọn đồ uống, điền thông tin — chúng mình ship đến tay bạn.</p>
+  </div>
+
+  <main>
+    <div class="section">
+      <div class="section-label">Chọn đồ uống</div>
+      <div id="drinks-grid"></div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:8px;padding-left:2px;line-height:1.6;">
+        * meiji milk mặc định &nbsp;·&nbsp; boring oat milk +15k
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Thông tin giao hàng</div>
+      <div class="fields">
+        <div class="field" id="f-name">
+          <label>Họ tên</label>
+          <input type="text" id="name" placeholder="Tên của bạn"/>
+        </div>
+        <div class="field" id="f-phone">
+          <label>Số điện thoại</label>
+          <input type="tel" id="phone" placeholder="090 123 4567"/>
+        </div>
+        <div class="field" id="f-address">
+          <label>Địa chỉ giao hàng</label>
+          <textarea id="address" placeholder="Số nhà, đường, phường, quận, thành phố…"></textarea>
+        </div>
+        <div class="field">
+          <label>Ghi chú (không bắt buộc)</label>
+          <input type="text" id="notes" placeholder="Ví dụ: ít đá, không đường…"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Thanh toán</div>
+      <div class="payment-grid">
+        <button class="pay-opt selected" onclick="selectPay(this,'bank')">
+          <span class="pay-icon">🏦</span>
+          <span class="pay-name">Chuyển khoản</span>
+          <span class="pay-sub">Thanh toán trước</span>
+        </button>
+        <button class="pay-opt" onclick="selectPay(this,'cod')">
+          <span class="pay-icon">💵</span>
+          <span class="pay-name">Tiền mặt</span>
+          <span class="pay-sub">Thanh toán khi nhận</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Tóm tắt đơn hàng</div>
+      <div class="empty-note" id="empty-note">Bạn chưa chọn đồ uống nào ✦</div>
+      <div class="summary-box" id="summary-box"></div>
+      <div class="notice">📦 Chúng mình sẽ liên hệ xác nhận đơn hàng và phí ship trước khi giao.</div>
+      <button class="submit-btn" id="submit-btn" onclick="submitOrder()">
+        Đặt hàng ngay →
+      </button>
+    </div>
+  </main>
+</div>
+
+<div id="success">
+  <div class="success-ring">✓</div>
+  <h2>Đặt hàng thành công!</h2>
+  <p>Cảm ơn bạn! Chúng mình sẽ gọi điện xác nhận<br/>đơn hàng và thông tin giao hàng sớm nhé.</p>
+  <div class="order-card" id="order-card"></div>
+  <button class="new-btn" onclick="resetForm()">Đặt thêm đồ uống</button>
+</div>
+
+<div class="footer">haihôm</div>
+
+<script>
+
+// 🔴 PASTE YOUR APPS SCRIPT URL HERE after deploying
+const SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+
+const MENU = [
+  { cat: 'cà phê', items: [
+    { id:1,  name:'đen chậm',  desc:'coffee & filtered water',    price:60000, oat:false },
+    { id:2,  name:'sữa đặc',   desc:'coffee & condensed milk',    price:65000, oat:false },
+    { id:3,  name:'bạc xỉu',   desc:'Vietnamese white coffee',    price:75000, oat:false },
+    { id:4,  name:'cốt dừa',   desc:'coffee & coconut cream',     price:85000, oat:false },
+  ]},
+  { cat: 'matcha', items: [
+    { id:5,  name:'lá non',    desc:'milk | oat milk',             price:90000, oat:true  },
+    { id:6,  name:'dừa trong', desc:'matcha & coconut juice',      price:90000, oat:false },
+    { id:7,  name:'dừa mây',   desc:'matcha foam & coconut juice', price:95000, oat:false },
+  ]},
+  { cat: 'soda', items: [
+    { id:8,  name:'lắp lánh',  desc:'fermented lemon honey',             price:70000, oat:false },
+    { id:9,  name:'đen huyền', desc:'coffee & fermented lemon honey',    price:85000, oat:false },
+    { id:10, name:'chiêu sắc', desc:'matcha & fermented lemon honey',    price:95000, oat:false },
+  ]},
+];
+
+let state = {};
+let payMethod = 'bank';
+
+function fmt(n)     { return (n/1000).toFixed(0) + 'k'; }
+function fmtFull(n) { return n.toLocaleString('vi-VN') + ' ₫'; }
+function findItem(id) { for (const c of MENU) for (const i of c.items) if (i.id===id) return i; }
+
+function renderMenu() {
+  document.getElementById('drinks-grid').innerHTML = MENU.map(cat => `
+    <div class="cat-label">${cat.cat}</div>
+    ${cat.items.map(item => `
+      <div class="drink-card" id="card-${item.id}" onclick="toggleDrink(${item.id})">
+        <div class="drink-check">
+          <svg width="11" height="8" viewBox="0 0 11 8" fill="none">
+            <path d="M1 4L4 7L10 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="drink-info">
+          <div class="drink-name">${item.name}</div>
+          <div class="drink-desc">${item.desc}</div>
+          <div class="drink-extras">
+            ${item.oat ? `
+            <div class="oat-row">
+              <span class="oat-label">loại sữa</span>
+              <div class="toggle-btn">
+                <button class="toggle-opt active" onclick="setOat(event,${item.id},false)">meiji</button>
+                <button class="toggle-opt" onclick="setOat(event,${item.id},true)">oat +15k</button>
+              </div>
+            </div>` : ''}
+            <div class="qty-row">
+              <span class="qty-label">số lượng</span>
+              <div class="qty-controls">
+                <button class="qty-btn" onclick="changeQty(event,${item.id},-1)">−</button>
+                <span class="qty-num" id="qty-${item.id}">1</span>
+                <button class="qty-btn" onclick="changeQty(event,${item.id},1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="drink-price" id="price-${item.id}">${fmt(item.price)}</div>
+      </div>`).join('')}
+  `).join('');
+}
+
+function toggleDrink(id) {
+  const card = document.getElementById('card-'+id);
+  if (state[id]) { delete state[id]; card.classList.remove('selected'); }
+  else { state[id] = { qty:1, oat:false }; card.classList.add('selected'); }
+  updateUI();
+}
+
+function setOat(e, id, val) {
+  e.stopPropagation();
+  if (!state[id]) return;
+  state[id].oat = val;
+  document.getElementById('card-'+id).querySelectorAll('.toggle-opt')
+    .forEach((b,i) => b.classList.toggle('active', i===(val?1:0)));
+  const item = findItem(id);
+  document.getElementById('price-'+id).textContent = fmt(item.price + (val?15000:0));
+  updateSummary();
+}
+
+function changeQty(e, id, d) {
+  e.stopPropagation();
+  if (!state[id]) return;
+  state[id].qty = Math.max(1, state[id].qty + d);
+  document.getElementById('qty-'+id).textContent = state[id].qty;
+  updateSummary();
+}
+
+function updateUI() {
+  const count = Object.keys(state).length;
+  const badge = document.getElementById('cart-badge');
+  badge.style.display = count > 0 ? 'block' : 'none';
+  badge.textContent = count + ' món';
+  updateSummary();
+}
+
+function updateSummary() {
+  const box = document.getElementById('summary-box');
+  const empty = document.getElementById('empty-note');
+  const keys = Object.keys(state);
+  if (!keys.length) { box.style.display='none'; empty.style.display='block'; return; }
+  empty.style.display='none'; box.style.display='block';
+  let total=0, html='';
+  keys.forEach(id => {
+    const item = findItem(parseInt(id)), s = state[id];
+    const price = item.price + (s.oat?15000:0), sub = price * s.qty;
+    total += sub;
+    html += `<div class="sum-row"><span class="lbl">${item.name}${s.oat?' (oat)':''} ×${s.qty}</span><span>${fmtFull(sub)}</span></div>`;
+  });
+  html += `<div class="sum-total"><span>Tổng</span><span class="amt">${fmtFull(total)}</span></div>`;
+  box.innerHTML = html;
+}
+
+function selectPay(el, m) {
+  document.querySelectorAll('.pay-opt').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected'); payMethod = m;
+}
+
+function validate() {
+  let ok = true;
+  [['name','f-name','Vui lòng nhập họ tên'],
+   ['phone','f-phone','Vui lòng nhập số điện thoại'],
+   ['address','f-address','Vui lòng nhập địa chỉ']].forEach(([id,fid,msg]) => {
+    const el = document.getElementById(id), wrap = document.getElementById(fid);
+    wrap.classList.remove('error');
+    const old = wrap.querySelector('.error-msg'); if (old) old.remove();
+    if (!el.value.trim()) {
+      wrap.classList.add('error');
+      const e = document.createElement('div'); e.className='error-msg'; e.textContent=msg;
+      wrap.appendChild(e); ok = false;
+    }
+  });
+  return ok;
+}
+
+function showToast(msg) {
+  const t = document.createElement('div'); t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+async function submitOrder() {
+  if (!Object.keys(state).length) { showToast('Bạn chưa chọn đồ uống nào! ☕'); return; }
+  if (!validate()) return;
+
+  const orderId = 'HH-' + Math.floor(10000 + Math.random()*90000);
+  const name    = document.getElementById('name').value.trim();
+  const phone   = document.getElementById('phone').value.trim();
+  const address = document.getElementById('address').value.trim();
+  const notes   = document.getElementById('notes').value.trim();
+
+  let items = [], total = 0;
+  Object.keys(state).forEach(id => {
+    const item = findItem(parseInt(id)), s = state[id];
+    const price = item.price + (s.oat?15000:0), subtotal = price * s.qty;
+    total += subtotal;
+    items.push({ name: item.name, oat: s.oat, qty: s.qty, price, subtotal });
+  });
+
+  const payload = { orderId, name, phone, address, notes, items, total, payment: payMethod };
+
+  // Show loading state
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Đang gửi đơn hàng…';
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    // Show success page
+    document.getElementById('order-card').innerHTML = `
+      <div class="order-id-lbl">Mã đơn hàng</div>
+      <div class="order-num">${orderId}</div>
+      ${items.map(i=>`<div style="font-size:13px;color:var(--text-muted);padding:3px 0">
+        ${i.name}${i.oat?' (oat)':''} ×${i.qty} — ${fmtFull(i.subtotal)}
+      </div>`).join('')}
+      <div style="border-top:2px solid var(--cream-dark);margin:12px 0 8px;padding-top:12px;display:flex;justify-content:space-between;font-size:17px;font-weight:700">
+        <span>Tổng</span><span style="color:var(--blue)">${fmtFull(total)}</span>
+      </div>
+      <div style="font-size:13px;color:var(--text-muted);line-height:1.8;margin-top:6px">
+        📦 ${address}<br/>📞 ${phone}<br/>
+        💳 ${payMethod==='bank'?'Chuyển khoản':'Tiền mặt khi nhận'}
+        ${notes?`<br/>📝 ${notes}`:''}
+      </div>`;
+
+    document.getElementById('form-page').style.display = 'none';
+    document.getElementById('success').style.display = 'block';
+    window.scrollTo({ top:0, behavior:'smooth' });
+
+  } catch(err) {
+    showToast('Có lỗi xảy ra, vui lòng thử lại!');
+    btn.disabled = false;
+    btn.innerHTML = 'Đặt hàng ngay →';
+  }
+}
+
+function resetForm() {
+  state={}; payMethod='bank';
+  ['name','phone','address','notes'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('success').style.display='none';
+  document.getElementById('form-page').style.display='block';
+  document.getElementById('submit-btn').disabled=false;
+  document.getElementById('submit-btn').innerHTML='Đặt hàng ngay →';
+  renderMenu(); updateUI();
+  document.querySelectorAll('.pay-opt').forEach((b,i) => b.classList.toggle('selected',i===0));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+renderMenu();
+</script>
+</body>
+</html>
