@@ -1,8 +1,11 @@
-# Take-away order form for Haihom
+# Take-away Order Form
 
-Single page HTML order form for Haihom
+Single-page HTML order form for Haihom
 
-Deployed with Netlify
+Deployed on Netlify
 
+Execution Flow:
 
-
++--------------------------------+    +----------------------------------+    +----------------------+
+|  Netlify's URL -- submit order | -> | Netlify form submit notification | -> | Email's Notification |
++--------------------------------+    +----------------------------------+    +----------------------+
