@@ -103,11 +103,13 @@
                         <button
                             class="pay-opt selected"
                             onclick="selectPay(this, 'bank')"
+                            style="grid-column: 1 / -1"
                         >
                             <span class="pay-icon">🏦</span>
                             <span class="pay-name">Chuyển khoản</span>
                             <span class="pay-sub">Thanh toán trước</span>
                         </button>
+                        <!--
                         <button
                             class="pay-opt"
                             onclick="selectPay(this, 'cod')"
@@ -116,6 +118,7 @@
                             <span class="pay-name">Tiền mặt</span>
                             <span class="pay-sub">Thanh toán khi nhận</span>
                         </button>
+                        -->
                     </div>
                 </div>
 
@@ -177,6 +180,13 @@
                         },
                         {
                             id: 3,
+                            name: "sữa tươi",
+                            desc: "coffee & milk | oat milk",
+                            price: 70000,
+                            oat: true,
+                        },
+                        {
+                            id: 3,
                             name: "bạc xỉu",
                             desc: "Vietnamese white coffee",
                             price: 75000,
@@ -197,7 +207,7 @@
                         {
                             id: 5,
                             name: "lá non",
-                            desc: "milk | oat milk",
+                            desc: "matcha & milk | oat milk",
                             price: 90000,
                             oat: true,
                         },
@@ -265,47 +275,47 @@
             function renderMenu() {
                 document.getElementById("drinks-grid").innerHTML = MENU.map(
                     (cat) => `
-    <div class="cat-label">${cat.cat}</div>
-    ${cat.items
-        .map(
-            (item) => `
-      <div class="drink-card" id="card-${item.id}" onclick="toggleDrink(${item.id})">
-        <div class="drink-check">
-          <svg width="11" height="8" viewBox="0 0 11 8" fill="none">
-            <path d="M1 4L4 7L10 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="drink-info">
-          <div class="drink-name">${item.name}</div>
-          <div class="drink-desc">${item.desc}</div>
-          <div class="drink-extras">
-            ${
-                item.oat
-                    ? `
-            <div class="oat-row">
-              <span class="oat-label">loại sữa</span>
-              <div class="toggle-btn">
-                <button class="toggle-opt active" onclick="setOat(event,${item.id},false)">meiji</button>
-                <button class="toggle-opt" onclick="setOat(event,${item.id},true)">oat +15k</button>
-              </div>
-            </div>`
-                    : ""
-            }
-            <div class="qty-row">
-              <span class="qty-label">số lượng</span>
-              <div class="qty-controls">
-                <button class="qty-btn" onclick="changeQty(event,${item.id},-1)">−</button>
-                <span class="qty-num" id="qty-${item.id}">1</span>
-                <button class="qty-btn" onclick="changeQty(event,${item.id},1)">+</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="drink-price" id="price-${item.id}">${fmt(item.price)}</div>
-      </div>`,
-        )
-        .join("")}
-  `,
+              <div class="cat-label">${cat.cat}</div>
+              ${cat.items
+                  .map(
+                      (item) => `
+                <div class="drink-card" id="card-${item.id}" onclick="toggleDrink(${item.id})">
+                  <div class="drink-check">
+                    <svg width="11" height="8" viewBox="0 0 11 8" fill="none">
+                      <path d="M1 4L4 7L10 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div class="drink-info">
+                    <div class="drink-name">${item.name}</div>
+                    <div class="drink-desc">${item.desc}</div>
+                    <div class="drink-extras">
+                      ${
+                          item.oat
+                              ? `
+                      <div class="oat-row">
+                        <span class="oat-label">loại sữa</span>
+                        <div class="toggle-btn">
+                          <button class="toggle-opt active" onclick="setOat(event,${item.id},false)">meiji</button>
+                          <button class="toggle-opt" onclick="setOat(event,${item.id},true)">oat +15k</button>
+                        </div>
+                      </div>`
+                              : ""
+                      }
+                      <div class="qty-row">
+                        <span class="qty-label">số lượng</span>
+                        <div class="qty-controls">
+                          <button class="qty-btn" onclick="changeQty(event,${item.id},-1)">−</button>
+                          <span class="qty-num" id="qty-${item.id}">1</span>
+                          <button class="qty-btn" onclick="changeQty(event,${item.id},1)">+</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="drink-price" id="price-${item.id}">${fmt(item.price)}</div>
+                </div>`,
+                  )
+                  .join("")}
+            `,
                 ).join("");
             }
 
@@ -526,25 +536,25 @@
                     });
 
                     document.getElementById("order-card").innerHTML = `
-      <div class="order-id-lbl">Mã đơn hàng</div>
-      <div class="order-num">${orderId}</div>
-      ${items
-          .map(
-              (
-                  i,
-              ) => `<div style="font-size:13px;color:var(--text-muted);padding:3px 0">
-        ${i.name}${i.oat ? " (oat)" : ""} ×${i.qty} — ${fmtFull(i.subtotal)}
-      </div>`,
-          )
-          .join("")}
-      <div style="border-top:2px solid var(--cream-dark);margin:12px 0 8px;padding-top:12px;display:flex;justify-content:space-between;font-size:17px;font-weight:700">
-        <span>Tổng</span><span style="color:var(--blue)">${fmtFull(total)}</span>
-      </div>
-      <div style="font-size:13px;color:var(--text-muted);line-height:1.8;margin-top:6px">
-        📦 ${address}<br/>📞 ${phone}<br/>
-        💳 ${payMethod === "bank" ? "Chuyển khoản" : "Tiền mặt khi nhận"}
-        ${notes ? `<br/>📝 ${notes}` : ""}
-      </div>`;
+                <div class="order-id-lbl">Mã đơn hàng</div>
+                <div class="order-num">${orderId}</div>
+                ${items
+                    .map(
+                        (
+                            i,
+                        ) => `<div style="font-size:13px;color:var(--text-muted);padding:3px 0">
+                  ${i.name}${i.oat ? " (oat)" : ""} ×${i.qty} — ${fmtFull(i.subtotal)}
+                </div>`,
+                    )
+                    .join("")}
+                <div style="border-top:2px solid var(--cream-dark);margin:12px 0 8px;padding-top:12px;display:flex;justify-content:space-between;font-size:17px;font-weight:700">
+                  <span>Tổng</span><span style="color:var(--blue)">${fmtFull(total)}</span>
+                </div>
+                <div style="font-size:13px;color:var(--text-muted);line-height:1.8;margin-top:6px">
+                  📦 ${address}<br/>📞 ${phone}<br/>
+                  💳 ${payMethod === "bank" ? "Chuyển khoản" : "Tiền mặt khi nhận"}
+                  ${notes ? `<br/>📝 ${notes}` : ""}
+                </div>`;
 
                     document.getElementById("form-page").style.display = "none";
                     document.getElementById("success").style.display = "block";
