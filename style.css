@@ -584,12 +584,8 @@ main {
     background: var(--blue);
     color: var(--cream);
 }
-
 .footer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+    text-align: center;
     padding: 24px;
     font-size: 18px;
     font-weight: 700;
